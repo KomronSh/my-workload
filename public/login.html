@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Вход в систему оценки загруженности подразделений предприятия и перераспределения задач."
+    />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Вход и регистрация</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body class="login-page">
+    <div class="login-container">
+      <div class="login-box">
+        <h1>Workload Evaluator</h1>
+        <p class="subtitle">Анализ загруженности подразделений</p>
+
+        <!-- Форма регистрации -->
+        <form id="register-form" class="auth-form active">
+          <h2>Создать аккаунт</h2>
+          <label>
+            Ваше имя
+            <input
+              id="register-name"
+              type="text"
+              placeholder="Иван Петров"
+              required
+            />
+          </label>
+          <label>
+            Email
+            <input
+              id="register-email"
+              type="email"
+              placeholder="ivan@example.com"
+              required
+            />
+          </label>
+          <label>
+            Пароль
+            <input
+              id="register-password"
+              type="password"
+              placeholder="Минимум 4 символа"
+              minlength="4"
+              required
+            />
+          </label>
+          <label>
+            Подтверждение пароля
+            <input
+              id="register-password-confirm"
+              type="password"
+              placeholder="Повторите пароль"
+              minlength="4"
+              required
+            />
+          </label>
+          <button type="submit">Зарегистрироваться</button>
+          <div id="register-message" class="message"></div>
+        </form>
+
+        <!-- Форма входа -->
+        <form id="login-form" class="auth-form">
+          <h2>Вход в систему</h2>
+          <label>
+            Email
+            <input
+              id="login-email"
+              type="email"
+              placeholder="admin@example.com"
+              required
+            />
+          </label>
+          <label>
+            Пароль
+            <input
+              id="login-password"
+              type="password"
+              placeholder="Пароль"
+              required
+            />
+          </label>
+          <button type="submit">Войти</button>
+          <div id="login-message" class="message"></div>
+        </form>
+
+        <!-- Переключатель между формами -->
+        <div class="auth-toggle">
+          <p id="toggle-text">
+            Уже есть аккаунт?
+            <button type="button" id="toggle-form">Войти</button>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const api = {
+        register: "/api/register",
+        login: "/api/login",
+      };
+
+      const registerForm = document.getElementById("register-form");
+      const loginForm = document.getElementById("login-form");
+      const registerName = document.getElementById("register-name");
+      const registerEmail = document.getElementById("register-email");
+      const registerPassword = document.getElementById("register-password");
+      const registerPasswordConfirm = document.getElementById(
+        "register-password-confirm",
+      );
+      const registerMessage = document.getElementById("register-message");
+
+      const loginEmail = document.getElementById("login-email");
+      const loginPassword = document.getElementById("login-password");
+      const loginMessage = document.getElementById("login-message");
+
+      const toggleButton = document.getElementById("toggle-form");
+      const toggleText = document.getElementById("toggle-text");
+
+      let isRegisterMode = true;
+
+      function updateToggleText() {
+        toggleText.firstChild.textContent = isRegisterMode
+          ? "Уже есть аккаунт? "
+          : "Нет аккаунта? ";
+        toggleButton.textContent = isRegisterMode
+          ? "Войти"
+          : "Зарегистрироваться";
+      }
+
+      function toggleAuthMode(e) {
+        e.preventDefault();
+        isRegisterMode = !isRegisterMode;
+
+        registerForm.classList.toggle("active");
+        loginForm.classList.toggle("active");
+        registerMessage.textContent = "";
+        loginMessage.textContent = "";
+        updateToggleText();
+      }
+
+      // Переключение между режимами
+      toggleButton.addEventListener("click", toggleAuthMode);
+
+      async function handleRegister(event) {
+        event.preventDefault();
+        registerMessage.textContent = "";
+        registerMessage.className = "message";
+
+        if (registerPassword.value !== registerPasswordConfirm.value) {
+          registerMessage.textContent = "Пароли не совпадают";
+          registerMessage.className = "message error";
+          return;
+        }
+
+        const response = await fetch(api.register, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: registerName.value,
+            email: registerEmail.value,
+            password: registerPassword.value,
+          }),
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.token) {
+          localStorage.setItem("authToken", data.token);
+          registerMessage.textContent = "Добро пожаловать!";
+          registerMessage.className = "message success";
+          setTimeout(() => {
+            window.location.href = "/index.html";
+          }, 500);
+        } else {
+          registerMessage.textContent = data.error || "Ошибка регистрации";
+          registerMessage.className = "message error";
+        }
+      }
+
+      async function handleLogin(event) {
+        event.preventDefault();
+        loginMessage.textContent = "";
+        loginMessage.className = "message";
+
+        const response = await fetch(api.login, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email: loginEmail.value,
+            password: loginPassword.value,
+          }),
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.token) {
+          localStorage.setItem("authToken", data.token);
+          loginMessage.textContent = "Добро пожаловать!";
+          loginMessage.className = "message success";
+          setTimeout(() => {
+            window.location.href = "/index.html";
+          }, 500);
+        } else {
+          loginMessage.textContent = data.error || "Ошибка входа";
+          loginMessage.className = "message error";
+        }
+      }
+
+      registerForm.addEventListener("submit", handleRegister);
+      loginForm.addEventListener("submit", handleLogin);
+
+      // Проверяем, авторизован ли пользователь
+      const token = localStorage.getItem("authToken");
+      if (token) {
+        window.location.href = "/index.html";
+      }
+    </script>
+  </body>
+</html>

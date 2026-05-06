@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Веб-приложение для оценки загруженности подразделений предприятия, анализа задач и перераспределения работ."
+    />
+    <meta
+      name="keywords"
+      content="оценка загруженности подразделений, перераспределение задач, управление задачами, аналитика предприятия"
+    />
+    <meta name="robots" content="index, follow" />
+    <title>Оценка загрузки подразделений</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="canonical" href="http://localhost:3000/index.html" />
+  </head>
+  <body>
+    <header>
+      <div class="header-row">
+        <div>
+          <h1>Workload Evaluator</h1>
+          <p>Анализ загруженности подразделений и перераспределение задач.</p>
+        </div>
+        <div class="auth-box">
+          <div class="auth-status" id="auth-status"></div>
+          <button type="button" id="logout-button" class="secondary hidden">
+            Выйти
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <section class="panel" id="stats-panel">
+        <h2>Статистика</h2>
+        <div id="stats"></div>
+      </section>
+
+      <section class="panel" id="departments-panel">
+        <h2>Подразделения</h2>
+        <div id="departments"></div>
+      </section>
+
+      <section class="panel" id="tasks-panel">
+        <h2>Задачи</h2>
+        <div id="tasks"></div>
+      </section>
+
+      <section class="panel hidden" id="redistribution-panel">
+        <h2>Перераспределение задач</h2>
+        <form id="redistribute-form">
+          <label>
+            Задача
+            <select id="task-select"></select>
+          </label>
+          <label>
+            Исходное подразделение
+            <select id="source-select"></select>
+          </label>
+          <label>
+            Целевое подразделение
+            <select id="target-select"></select>
+          </label>
+          <button type="submit">Перераспределить</button>
+        </form>
+        <div id="redistribution-message" class="message"></div>
+      </section>
+
+      <section class="panel hidden" id="management-panel">
+        <h2>Управление</h2>
+        <div class="actions">
+          <button type="button" id="auto-redistribute">
+            Авто-перераспределение
+          </button>
+        </div>
+
+        <form id="create-task-form">
+          <h3>Добавить задачу</h3>
+          <label>
+            Название задачи
+            <input
+              id="task-title"
+              type="text"
+              placeholder="Название задачи"
+              required
+            />
+          </label>
+          <label>
+            Часы
+            <input
+              id="task-hours"
+              type="number"
+              min="1"
+              step="1"
+              placeholder="Часы"
+              required
+            />
+          </label>
+          <label>
+            Подразделение
+            <select id="task-department"></select>
+          </label>
+          <button type="submit">Создать задачу</button>
+        </form>
+
+        <form id="create-department-form">
+          <h3>Добавить подразделение</h3>
+          <label>
+            Название
+            <input
+              id="department-name"
+              type="text"
+              placeholder="Название подразделения"
+              required
+            />
+          </label>
+          <label>
+            Вместимость, ч
+            <input
+              id="department-capacity"
+              type="number"
+              min="1"
+              step="1"
+              placeholder="Вместимость"
+              required
+            />
+          </label>
+          <button type="submit">Создать подразделение</button>
+        </form>
+
+        <div id="management-message" class="message"></div>
+      </section>
+
+      <section class="panel" id="activity-panel">
+        <h2>Журнал активности</h2>
+        <div id="activity"></div>
+      </section>
+
+      <section class="panel hidden" id="analytics-panel">
+        <h2>Статистика работы приложения</h2>
+        <div id="analytics"></div>
+      </section>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>
